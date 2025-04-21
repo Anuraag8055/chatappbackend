@@ -70,7 +70,7 @@ public class RoomController {
 		return ResponseEntity.ok("Room deleted!");
 	}
 
-	//Delete Message
+	//Delete Message(deletes from database)
 	@DeleteMapping("/{roomId}/messages/{messageId}")
 	public ResponseEntity<?> deleteMessage(@PathVariable String roomId, @PathVariable String messageId,
 			@RequestParam String requestedBy) {
