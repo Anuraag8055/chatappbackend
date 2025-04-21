@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @CrossOrigin("http://localhost:5173")
@@ -29,28 +30,38 @@ public class ChatController {
 
 
     //for sending and receiving messages
-    @MessageMapping("/sendMessage/{roomId}")// /app/sendMessage/roomId
-    @SendTo("/topic/room/{roomId}")//subscribe
+    @MessageMapping("/sendMessage/{roomId}")
+    @SendTo("/topic/room/{roomId}")
     public Message sendMessage(
             @DestinationVariable String roomId,
             @RequestBody MessageRequest request
     ) {
-
+        // Retrieve the room from the repository
         Room room = roomRepository.findByRoomId(request.getRoomId());
-        Message message = new Message();
-        message.setContent(request.getContent());
-        message.setSender(request.getSender());
-        message.setTimeStamp(LocalDateTime.now());
-        if (room != null) {
-            room.getMessages().add(message);
-            roomRepository.save(room);
-        } else {
-            throw new RuntimeException("room not found !!");
+        
+        // Check if room exists
+        if (room == null) {
+            throw new RuntimeException("Room not found!");
         }
-
+        
+        // Create a new message
+        Message message = new Message(request.getSender(), request.getContent());
+//        message.setId(UUID.randomUUID().toString());
+//        message.setContent(request.getContent());
+//        message.setSender(request.getSender());
+//        message.setTimeStamp(LocalDateTime.now());
+//        
+        // Add the message to the room's message list
+        room.getMessages().add(message);
+        
+        // Save the room (this will also persist the message)
+        roomRepository.save(room);
+        
+        // Log to check if the ID is generated
+        System.out.println("Message ID after save: " + message.getId());
+        
+        // Return the message with the generated ID
         return message;
-
-
     }
     
 	@MessageMapping("/userJoin/{roomId}")

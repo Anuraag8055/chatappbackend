@@ -12,6 +12,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,20 +35,20 @@ public class RoomController {
 
     /// Create Room (Now with Topic + Admin)
     @PostMapping
-    public ResponseEntity<?> createRoom(
-        @RequestBody Map<String, String> request // Accept JSON { "roomId": "123", "roomTopic": "General", "adminUser": "Anuraag" }
-    ) {
+    public ResponseEntity<?> createRoom(@RequestBody Map<String, String> request) {
         String roomId = request.get("roomId");
+        String adminUser = request.get("adminUser").replaceAll("^\"|\"$",""); // Clean admin name
+        
         if (roomRepository.findByRoomId(roomId) != null) {
-            return ResponseEntity.badRequest().body("Room already exists!");
+            return ResponseEntity.badRequest().body("Room exists!");
         }
 
         Room room = new Room();
         room.setRoomId(roomId);
-        room.setRoomTopic(request.get("roomTopic")); // Set topic
-        room.setAdminUser(request.get("adminUser")); // Set admin
-        room.getConnectedUsers().add(request.get("adminUser")); // Admin joins automatically
-        return ResponseEntity.status(HttpStatus.CREATED).body(roomRepository.save(room));
+        room.setRoomTopic(request.get("roomTopic"));
+        room.setAdminUser(adminUser);
+        room.setConnectedUsers(new ArrayList<>(List.of(adminUser))); // Initialize with just admin
+        return ResponseEntity.ok(roomRepository.save(room));
     }
 
     // Delete Room (Admin Only)
