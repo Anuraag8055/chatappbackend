@@ -67,6 +67,7 @@ public class ChatController {
 	@MessageMapping("/userJoin/{roomId}")
 	@SendTo("/topic/onlineUsers/{roomId}")
 	public List<String> handleUserJoin(@DestinationVariable String roomId, @Payload String username) {
+		username = username.replaceAll("^\"|\"$", "");
 		Room room = roomRepository.findByRoomId(roomId);
 		if (room != null) {
 			// Remove if exists to avoid duplicates

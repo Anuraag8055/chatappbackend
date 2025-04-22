@@ -22,7 +22,7 @@ public class Message {
     private String sender;
     private String content;
     private LocalDateTime timeStamp;
-    private boolean deleted;
+    private boolean deleted = false;
 
     public Message(String sender, String content) {
     	this.id = UUID.randomUUID().toString();

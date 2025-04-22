@@ -87,11 +87,23 @@ public class RoomController {
 		Optional<Message> messageToDelete = room.getMessages().stream().filter(m -> m.getId().equals(messageId))
 				.findFirst();
 
-		if (messageToDelete.isPresent()) {
-			room.getMessages().remove(messageToDelete.get());
-			roomRepository.save(room);
-			return ResponseEntity.ok().build();
-		}
+//		if (messageToDelete.isPresent()) {
+//			room.getMessages().remove(messageToDelete.get());
+//			roomRepository.save(room);
+//			return ResponseEntity.ok().build();
+//			
+//		}
+		 if (messageToDelete.isPresent()) {
+		        Message msg = messageToDelete.get();
+		        msg.setDeleted(true);
+		        //msg.setContent("This message was deleted by an admin.");
+		        roomRepository.save(room);
+
+		        // Optional: Broadcast deleted message
+		        simpMessagingTemplate.convertAndSend("/topic/room/" + roomId, msg);
+
+		        return ResponseEntity.ok().build();
+		    }
 
 		return ResponseEntity.notFound().build();
 	}
