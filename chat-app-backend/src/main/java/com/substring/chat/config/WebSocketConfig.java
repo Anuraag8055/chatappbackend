@@ -11,11 +11,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final PresenceChannelInterceptor presenceInterceptor;
-
-    public WebSocketConfig(PresenceChannelInterceptor presenceInterceptor) {
-        this.presenceInterceptor = presenceInterceptor;
-    }
+   
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -30,8 +26,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .withSockJS();
     }
 
-    @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(presenceInterceptor);
-    }
+    
 }

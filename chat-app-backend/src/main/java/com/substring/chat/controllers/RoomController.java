@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/rooms")
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin
 public class RoomController {
 	
 	private final SimpMessagingTemplate simpMessagingTemplate;
@@ -74,6 +74,7 @@ public class RoomController {
 	@DeleteMapping("/{roomId}/messages/{messageId}")
 	public ResponseEntity<?> deleteMessage(@PathVariable String roomId, @PathVariable String messageId,
 			@RequestParam String requestedBy) {
+		System.out.println("called");
 		Room room = roomRepository.findByRoomId(roomId);
 		if (room == null)
 			return ResponseEntity.notFound().build();
@@ -87,12 +88,7 @@ public class RoomController {
 		Optional<Message> messageToDelete = room.getMessages().stream().filter(m -> m.getId().equals(messageId))
 				.findFirst();
 
-//		if (messageToDelete.isPresent()) {
-//			room.getMessages().remove(messageToDelete.get());
-//			roomRepository.save(room);
-//			return ResponseEntity.ok().build();
-//			
-//		}
+
 		 if (messageToDelete.isPresent()) {
 		        Message msg = messageToDelete.get();
 		        msg.setDeleted(true);
@@ -108,36 +104,7 @@ public class RoomController {
 		return ResponseEntity.notFound().build();
 	}
 	
-	//User Removal 
-	@DeleteMapping("/{roomId}/users/{username}")
-	public ResponseEntity<?> removeUser(@PathVariable String roomId, @PathVariable String username,
-			@RequestParam String requestedBy) {
-		Room room = roomRepository.findByRoomId(roomId);
-		if (room == null)
-			return ResponseEntity.notFound().build();
-
-		// Only admin can remove users
-		if (!room.getAdminUser().equals(requestedBy)) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-		}
-
-		// Cannot remove admin
-		if (room.getAdminUser().equals(username)) {
-			return ResponseEntity.badRequest().body("Cannot remove admin user");
-		}
-
-		room.getConnectedUsers().remove(username);
-		roomRepository.save(room);
-
-		// Broadcast updated user list
-		simpMessagingTemplate.convertAndSend("/topic/onlineUsers/" + roomId, room.getConnectedUsers());
-
-		// Notify the removed user
-		simpMessagingTemplate.convertAndSend("/topic/userRemoved/" + roomId + "/" + username,
-				"You have been removed by admin");
-
-		return ResponseEntity.ok().build();
-	}
+	
 
     //get room: join
     @GetMapping("/{roomId}")
