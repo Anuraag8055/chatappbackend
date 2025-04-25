@@ -24,13 +24,5 @@ public class Room {
     private List<String> connectedUsers = new ArrayList<>();
     private List<Message> messages = new ArrayList<>();
 
-    public void addUser(String username) {
-        if (!connectedUsers.contains(username) ) {
-            connectedUsers.add(username);
-        }
-    }
 
-    public void removeUser(String username) {
-        connectedUsers.remove(username);
-    }
 }
